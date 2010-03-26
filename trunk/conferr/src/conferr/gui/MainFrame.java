@@ -38,6 +38,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -109,14 +110,23 @@ public class MainFrame extends javax.swing.JFrame {
 
                     String file = recentFilesMenuItems.get(menu);
 
-                    plan.loadFromFile(file);
+                    Vector<String> jars = FaultInjectionPlan.loadJarListFromFile(file);
+
+                    for ( int i = 0; i < jars.size() ; i++) {
+                        if ( ! new File(jars.get(i)).exists()) {
+                            jars.set(i, Utils.loadFile(MainFrame.this, plan, "Select location of " + new File(jars.get(i)).getName(), ".jar", "JAR archive (*.jar)"));
+                        }
+                    }
+
+                    plan.loadFromFile(file, jars);
                     
                 } catch (JDOMException ex) {
-                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);                
+                } catch (FileNotFoundException ex) {
+                    JOptionPane.showMessageDialog(MainFrame.this, "File not found");
                 } catch (IOException ex) {
                     Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
             }
         };
         
@@ -290,6 +300,7 @@ public class MainFrame extends javax.swing.JFrame {
         jButton19 = new javax.swing.JButton();
         jButton21 = new javax.swing.JButton();
         jButton18 = new javax.swing.JButton();
+        jButton22 = new javax.swing.JButton();
         jLabel17 = new javax.swing.JLabel();
         jPanel18 = new javax.swing.JPanel();
         jPanel22 = new javax.swing.JPanel();
@@ -1254,6 +1265,14 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jPanel24.add(jButton18);
 
+        jButton22.setText("Edit...");
+        jButton22.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton22ActionPerformed(evt);
+            }
+        });
+        jPanel24.add(jButton22);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -1436,7 +1455,16 @@ public class MainFrame extends javax.swing.JFrame {
                                 
             if (sel != null) {                
                 sel = plan.getAbsolutePath(sel);
-                plan.loadFromFile(sel);            
+
+                Vector<String> jars = FaultInjectionPlan.loadJarListFromFile(sel);
+
+                for ( int i = 0; i < jars.size() ; i++) {
+                    if ( ! new File(jars.get(i)).exists()) {
+                        jars.set(i, Utils.loadFile(MainFrame.this, plan, "Select location of " + new File(jars.get(i)).getName(), ".jar", "JAR archive (*.jar)"));
+                    }
+                }
+
+                plan.loadFromFile(sel, jars);
                 addRecentFile(sel);
                 updateRecentFilesMenu();
             }
@@ -1583,14 +1611,20 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        
-        FaultScenarioSet scenarioSet = Utils.promptForVariables(scenarioBean1.getScenario());
-            
-        if (scenarioSet == null) return;
-        
-        TestScenarioDialog dialog = new TestScenarioDialog(this, true, plan, scenarioSet, (ErrorGenerator) scenarioSetList.getSelectedItem());
-        
-        dialog.setVisible(true);
+
+        try {
+
+            FaultScenarioSet scenarioSet = Utils.promptForVariables(scenarioBean1.getScenario());
+
+            if (scenarioSet == null) return;
+
+            TestScenarioDialog dialog = new TestScenarioDialog(this, true, plan, scenarioSet, (ErrorGenerator) scenarioSetList.getSelectedItem());
+
+            dialog.setVisible(true);
+
+        }  catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.toString());
+        }
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -2025,6 +2059,17 @@ public class MainFrame extends javax.swing.JFrame {
         }        
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
+    private void jButton22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton22ActionPerformed
+        if ( jarList.getSelectedIndex() != -1 ) {
+
+            String newValue = JOptionPane.showInputDialog(this, "Edit JAR reference",  jarList.getSelectedValue());
+
+            Vector<String> newJars = new Vector<String>(plan.getJars());
+            newJars.setElementAt(newValue, jarList.getSelectedIndex());
+            plan.setJars(newJars);
+        }
+    }//GEN-LAST:event_jButton22ActionPerformed
+
     
     
     
@@ -2074,6 +2119,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton20;
     private javax.swing.JButton jButton21;
+    private javax.swing.JButton jButton22;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;

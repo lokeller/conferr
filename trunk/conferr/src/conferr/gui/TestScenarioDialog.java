@@ -50,7 +50,7 @@ public class TestScenarioDialog extends javax.swing.JDialog {
     private ErrorGenerator sset;
     
     /** Creates new form TestScenarioDialog */
-    public TestScenarioDialog(java.awt.Frame parent, boolean modal, FaultInjectionPlan plan, FaultScenarioSet scenario, ErrorGenerator set) {
+    public TestScenarioDialog(java.awt.Frame parent, boolean modal, FaultInjectionPlan plan, FaultScenarioSet scenario, ErrorGenerator set) throws FileNotFoundException, ImpossibleConfigurationException, TransformerException {
         super(parent, modal);
         this.faultInjectionPlan1 = plan;
         
@@ -60,32 +60,22 @@ public class TestScenarioDialog extends javax.swing.JDialog {
         this.sset = set;               
         
         for (ConfigurationFile file : faultInjectionPlan1.getConfigurationFiles()) {
-            try {
-                
-                ConfigurationTransform c = set.getConfigurationTransform(file);
-                
-                Transform f = c.getTransformInstance();
-                
-                if (f != null) {
-                    configs.put(file.getName(), f.filter(file.getDocument(), c ));
-                } else {
-                    configs.put(file.getName(), file.getDocument());
-                }
-                configsObjs.put(file.getName(), file);
-                if (configs.get(file.getName()) == null) {
-                        JOptionPane.showMessageDialog(this, "Unable to parse " + file.getName());
-                        return;
-                }
-            }  catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, "Input file not found for " + file.getName());
-                return;
-            } catch (TransformerException ex) {
-                JOptionPane.showMessageDialog(this, "Error transforming " + file.getName());
-                return;
-            } catch (ImpossibleConfigurationException ex) {
-                JOptionPane.showMessageDialog(this, "Error transforming " + file.getName());
-                return;
+            
+            ConfigurationTransform c = set.getConfigurationTransform(file);
+
+            Transform f = c.getTransformInstance();
+
+            if (f != null) {
+                configs.put(file.getName(), f.filter(file.getDocument(), c ));
+            } else {
+                configs.put(file.getName(), file.getDocument());
             }
+            configsObjs.put(file.getName(), file);
+            if (configs.get(file.getName()) == null) {
+                    JOptionPane.showMessageDialog(this, "Unable to parse " + file.getName());
+                    return;
+            }
+
 
         }
         
