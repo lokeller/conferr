@@ -254,25 +254,44 @@ public class FaultInjectionPlan extends DefaultPluginContainer implements Proper
     public String stringToXMLString(String str) {
         if (str == null) return "";
         else return str;
-    }   
+    }       
     
-    public void loadFromFile(String pfile) throws JDOMException, IOException {
+    public static Vector<String> loadJarListFromFile( String pfile ) throws JDOMException, IOException {
+        SAXBuilder builder = new SAXBuilder();
+		
+        Document doc = builder.build(pfile);               
+                
+        Vector<String> jars = new Vector<String>();
+        
+        for (Object o : doc.getRootElement().getChild("jars").getChildren("jar")) {            
+            jars.add(((Element) o).getAttributeValue("ref"));
+        }
+        
+        return jars;
+        
+    }
+    
+    public void loadBaseDirFromFile( String pfile ) throws JDOMException, IOException {
+        SAXBuilder builder = new SAXBuilder();
+		
+        Document doc = builder.build(pfile);               
+        
+        
+           
+    }
+
+    public void loadFromFile(String pfile, Vector<String> jars ) throws JDOMException, IOException {
 		
 	setFile(pfile);
         
         SAXBuilder builder = new SAXBuilder();
 		
-        Document doc = builder.build(pfile);               
-        
+        Document doc = builder.build(pfile);
+
         setName(doc.getRootElement().getAttributeValue("name"));
+        
         setBaseDirectory(doc.getRootElement().getAttributeValue("base-directory"));
-	
-        Vector<String> jars = new Vector<String>();
-        
-        for (Object o : doc.getRootElement().getChild("jars").getChildren("jar")) {
-            jars.add(((Element) o).getAttributeValue("ref"));
-        }
-        
+
         setJars(jars);
         
         setRunner(doc.getRootElement().getChild("runner").getAttributeValue("class-name"));
