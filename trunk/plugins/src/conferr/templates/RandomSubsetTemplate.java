@@ -169,7 +169,7 @@ public class RandomSubsetTemplate extends AbstractFaultTemplate {
             }
         }
 
-        throw new RuntimeException("Size of description changed while picking a random value");
+        throw new RuntimeException("No faults available or size of description changed while picking a random value");
 
     }
     
