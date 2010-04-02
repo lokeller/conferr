@@ -86,7 +86,7 @@ public class ElementOfInterval extends AbstractValueSet {
 
     @Override
     public Value get(long id) {
-        return new Value((min + id) + "", min + id);
+        return new Value((min + id) + "", min + (int) id);
     }
     
     
