@@ -41,6 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -80,15 +83,38 @@ public class RegexContentTemplate extends MultidocSimpleTemplate {
 
             FaultSpace documents = new FaultSpace(documentParam);
 
+            Pattern p = Pattern.compile(scenario.getParameterValue(matchString));
+
             for (Map.Entry<String, Document> entry : configs.entrySet()) {
                 XPath xpath = XPath.newInstance(scenario.getParameterValue(targetString));
      
                List l = xpath.selectNodes(entry.getValue());
-                if (l.size() > 0) {
+
+               List matching = new Vector();
+
+               for ( Object o : l) {
+
+                   Matcher m = null;
+
+                   if ( o instanceof Element) {
+                       m = p.matcher(((Element) o).getText());
+                   } else if ( o instanceof Attribute) {
+                       m = p.matcher(((Attribute) o).getValue());
+                   } else if (o instanceof Text) {
+                       m = p.matcher(((Text) o).getText());
+                   }
+
+                   if ( m != null && m.find()) {
+                       matching.add(o);
+                   }
+
+               }
+
+                if (matching.size() > 0) {
 
                     FaultSpace targets = new FaultSpace(targetParam);
                     
-                    targets.addSubspace(new ElementsSet(l), null);
+                    targets.addSubspace(new ElementsSet(matching), null);
                     
                     documents.addSubspace(new ValueSet(new Value(entry.getKey())), targets);
 
@@ -98,7 +124,9 @@ public class RegexContentTemplate extends MultidocSimpleTemplate {
             return documents;        
         } catch (JDOMException ex) {
             throw new RuntimeException(ex);
-        } 
+        } catch (PatternSyntaxException ex) {
+            throw new RuntimeException(ex);         
+        }
                 
     }
     
