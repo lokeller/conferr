@@ -1,0 +1,12 @@
+<error-generator configuration="manifest.mf" seed="1234">
+   <LineParser/>
+   <XPathSelect target="//manifest.mf"/>
+   <Insert what="&lt;directive name=&quot;Bogus&quot; separator=&quot;--&quot;&gt;Bogus&lt;/directive&gt;"/>
+   <XPathSelect target="//directive"/>
+   <ForEach>
+               <Variations times="2">
+                       <ModifyText func="ch.epfl.dslab.conferrng.plugins.errorgenerators.ChangeCaseStringModification"/>
+               </Variations>
+   </ForEach>
+  <LineSerializer/>
+</error-generator>

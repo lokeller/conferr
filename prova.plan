@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="plan.xsl"?>
+<plan name="New fault injection plan" base-directory=".">
+  <runner>
+    <plugin class-name="ch.epfl.dslab.conferrng.plugins.runners.SimpleRunner">
+      <param name="startup-script" value="/bin/true" />
+      <param name="shutdown-script" value="/bin/true" />
+      <param name="test-directory" value="/home1/lokeller/Desktop/test/test" />
+    </plugin>
+  </runner>
+  <jars>
+    <jar ref="/home1/lokeller/Projects/dslab/ConfErr-silviu/trunk/dist/ConfErr.jar" />
+  </jars>
+  <error-generators>
+    <error-generator configuration="manifest.mf" seed="1234">
+      <LineParser comment-pattern="#.*$" section-pattern="^\[.*\]$" separator-pattern="\s*=\s*" />
+      <XPathSelect condition="*" shouldItSucceed="true" target="//manifest.mf" />
+      <Insert condition="*" shouldItSucceed="true" what="&lt;directive name=&quot;Bogus&quot; separator=&quot;--&quot;&gt;Bogus&lt;/directive&gt;" />
+      <XPathSelect condition="*" shouldItSucceed="true" target="//directive" />
+      <ForEach condition="*" shouldItSucceed="true">
+        <Variations condition="*" shouldItSucceed="true" times="2">
+          <ModifyText condition="*" shouldItSucceed="true" func="ch.epfl.dslab.conferrng.plugins.errorgenerators.ChangeCaseStringModification" />
+        </Variations>
+      </ForEach>
+      <LineSerializer comment-pattern="#.*$" section-pattern="^\[.*\]$" separator-pattern="\s*=\s*" />
+    </error-generator>
+  </error-generators>
+</plan>
+
