@@ -1,0 +1,1 @@
+<wiki:gadget url="http://hosting.gmodules.com/ig/gadgets/file/117493604658187941379/frame-gadget.xml" width="100%" height="700" border="0"up_embeddedSite="http://dslab.epfl.ch/proj/conferr/doc"/>
